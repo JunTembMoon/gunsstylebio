@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>rove — bio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<style>
+  @font-face{
+    font-family:'Chalet LondonNineteenEighty';
+    src:url('Chalet LondonNineteenEighty.woff2') format('woff2'),
+      url('Chalet LondonNineteenEighty.otf') format('opentype');
+    font-display:swap;
+  }
+
+  /* Deep purple base with a saturated night-drive mood */
+  body{
+    font-family:'Chalet LondonNineteenEighty','Chalet London Nineteen Eighty',Impact,'Arial Narrow Bold',sans-serif; 
+    background:linear-gradient(180deg,#160d27,#32175d);
+    color:#eee5ff;
+    display:flex;align-items:center;justify-content:center;padding:36px;
+    -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  }
+
+  /* Opaque purple-tinted backdrop */
+  body::before{
+    content:'';position:fixed;inset:0;
+    background:linear-gradient(180deg, rgba(17,7,32,0.92), rgba(52,21,91,0.9)), url('back.png') center/cover no-repeat;
+    filter:saturate(1.3) brightness(0.72) contrast(1.12);
+    z-index:-2;
+    transition:transform 12s linear;
+  }
+  @keyframes bgPan{0%{transform:scale(1) translateY(0)}50%{transform:scale(1.02) translateY(-1%)}100%{transform:scale(1) translateY(0)}}
+  body::before{animation:bgPan 30s infinite;}
+
+  /* GTA-style neon intro glow */
+  body::after{
+    content:'';position:fixed;inset:-12%;pointer-events:none;z-index:-1;
+    background:
+      radial-gradient(ellipse 34% 30% at var(--red-x,39%) var(--red-y,45%),rgba(255,44,154,0.38),transparent 70%),
+      radial-gradient(ellipse 34% 30% at var(--blue-x,61%) var(--blue-y,55%),rgba(72,113,255,0.3),transparent 70%),
+      linear-gradient(115deg,transparent 20%,rgba(205,114,255,0.12) 48%,transparent 76%);
+    mix-blend-mode:screen;opacity:0.72;
+    animation:gtaIntroGlow 3.8s ease-in-out infinite alternate;
+  }
+  @keyframes gtaIntroGlow{
+    0%{opacity:0.48;transform:scale(0.98) rotate(-1deg);filter:hue-rotate(-8deg)}
+    100%{opacity:0.88;transform:scale(1.06) rotate(1deg);filter:hue-rotate(12deg)}
+  }
+
+  /* click overlay - soft dark */
+  #logo-screen{
+    position:fixed;inset:0;
+    background:linear-gradient(180deg,rgba(12,4,24,0.95),rgba(45,16,78,0.9));
+    display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;opacity:0;transition:opacity .6s cubic-bezier(.2,.9,.2,1)
+  }
+  #logo-screen.show{opacity:1}
+  
+  /* Menhera button style - grey/lavender - Rounded */
+  #logo-screen div{
+    color:#e0e0e0;
+    font-size:1.4rem;
+    font-weight:700;
+    letter-spacing:2px;
+    text-shadow:0 0 10px rgba(214, 198, 255, 0.65);
+    position:relative;padding:12px 24px;
+    border-radius:24px; /* More rounded */
+    background:rgba(34,12,58,0.88);
+    border:1px solid #cfc7ff;
+    box-shadow: 0 0 18px rgba(196,181,253,0.34);
+  }
+
+  @keyframes logoPulse{0%{transform:scale(1)}50%{transform:scale(1.03)}100%{transform:scale(1)}}
+
+  .container{opacity:0;transform:translateY(22px);transition:all .6s cubic-bezier(.2,.9,.2,1);display:flex;flex-direction:column;align-items:center;gap:20px}
+  .visible{opacity:1;transform:none}
+
+  /* Card styling - soft monochrome/lavender - Rounded */
+  .card{
+    width:560px;
+    background:linear-gradient(180deg, rgba(47,24,73,0.82), rgba(35,16,61,0.78));
+    border-radius:24px; /* More rounded */
+    padding:26px 34px;
+    backdrop-filter:blur(10px);
+    box-shadow:0 10px 40px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.8);
+    border:1px solid rgba(210,200,255,0.28);
+    transition:transform .35s ease,box-shadow .35s ease
+  }
+  .card:hover{
+    transform:translateY(-6px);
+    box-shadow:0 24px 60px rgba(0,0,0,0.95), 0 0 24px rgba(196,181,253,0.22);
+    border-color: rgba(220,214,255,0.5);
+  }
+
+  .avatar{
+    width:140px;height:140px;
+    border-radius:50%;
+    overflow:hidden;
+    margin:0 auto 12px;
+    border:2px solid #cfc7ff;
+    box-shadow:0 5px 25px rgba(0,0,0,0.6);
+    transition:transform .35s ease;
+    filter:saturate(0.75) brightness(0.9);
+  }
+  .avatar:hover{transform:scale(1.06) rotate(-2deg); filter: grayscale(0);}
+  .avatar img{width:100%;height:100%;object-fit:cover;display:block}
+
+  h2{
+    font-size:2.2rem;
+    text-align:center;
+    margin-bottom:6px;
+    /* Pale lavender to white gradient */
+    background:linear-gradient(90deg,#d9c9ff,#ffffff,#b49ae8);
+    -webkit-background-clip:text;background-clip:text;
+    color:transparent;
+    font-weight:800;
+    letter-spacing:1px;
+    text-shadow: 0 4px 18px rgba(196,181,253,0.42);
+  }
+  p.location{text-align:center;color:#c9b9e8;margin-bottom:8px; font-size: 0.9rem; letter-spacing: 1px;}
+
+  .stats{text-align:center;margin-top:10px}
+  /* Tag style */
+  .stat{
+    display:inline-block;
+    background:rgba(0,0,0,0.4);
+    padding:6px 14px;
+    border-radius:12px; /* Rounded */
+    font-weight:600;
+    color:#e4d8ff;
+    border:1px solid rgba(210,200,255,0.32);
+    animation:statPulse 2.8s infinite;
+    font-size: 0.85rem;
+  }
+  @keyframes statPulse{0%{transform:scale(1)}50%{transform:scale(1.03)}100%{transform:scale(1)}}
+
+  .player{
+    width:100%;
+    box-sizing:border-box;
+    margin-top:20px;
+    background:linear-gradient(180deg, rgba(31,13,52,0.68), rgba(54,22,83,0.58));
+    border-radius:18px;
+    padding:16px 18px;
+    display:flex;flex-direction:column;gap:8px;
+    border:1px solid rgba(210,200,255,0.18);
+    box-shadow: inset 0 0 18px rgba(0,0,0,0.36);
+  }
+  .player p{font-weight:700;color:#e5d9ff;margin:0 0 4px 0}
+  
+  .progress{height:12px;background:rgba(0,0,0,0.6);border-radius:10px;overflow:hidden; border:1px solid rgba(210,200,255,0.24);}
+  /* Pale lavender gradient bar */
+  .bar{
+    height:100%;width:0;
+    background:linear-gradient(270deg,#8f86b8,#f7f6ff,#cfc7ff);
+    background-size:200% 100%;
+    animation:barMove 4s linear infinite;
+    box-shadow:0 0 12px rgba(196,181,253,0.44);
+  }
+  @keyframes barMove{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+  
+  .controls{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+  #playPause{
+    background:linear-gradient(90deg,#d8d3ff,#8f86b8);
+    border:none;padding:10px 18px;border-radius:20px; /* Rounded pill */
+    font-weight:800;cursor:pointer;color:#101014;
+    box-shadow:0 5px 15px rgba(0,0,0,0.4);
+    transition:transform .2s
+  }
+  /* replace boring upward slide with subtle scale+rotate+glow */
+  #playPause:hover{transform:scale(1.04) rotate(-1deg);box-shadow:0 8px 30px rgba(196,181,253,0.4)}
+  input[type=range]{width:160px; accent-color: #cfc7ff;}
+
+  /* social icons: force black & white - Rounded */
+  #social-bg{
+    width:560px;height:66px;
+    background:linear-gradient(180deg,rgba(47,24,73,0.72),rgba(35,16,61,0.66));
+    border-radius:24px;
+    margin-top:12px;
+    display:flex;align-items:center;justify-content:center;
+    gap:20px;
+    border:1px solid rgba(210,200,255,0.22);
+  }
+  #socials img{width:44px;height:44px;filter:grayscale(1) contrast(1.2) brightness(0.8);transition:filter .25s,transform .25s}
+  /* social hover: scale + slight rotate + brighten (no vertical slide) */
+  #socials a:hover img{
+    transform:scale(1.12) rotate(-3deg);
+    filter:grayscale(0) drop-shadow(0 0 6px rgba(196,181,253,0.62));
+  }
+
+  footer{
+    /* Much more visible */
+    margin-top: 24px;
+    text-align: center;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    width: 100%;
+    text-shadow: 0 0 12px rgba(214, 198, 255, 0.78);
+    opacity: 1;
+    letter-spacing: 1px;
+    padding-bottom: 20px;
+  }
+  footer a { 
+    color: #eeeaff; 
+    text-decoration: none; 
+    border-bottom: 2px solid #cfc7ff;
+    padding-bottom: 2px;
+    transition: all 0.3s ease;
+  }
+  footer a:hover { 
+    color: #fff; 
+    text-shadow: 0 0 16px #d8d3ff; 
+    border-color: #fff;
+  }
+
+  @media (max-width:600px){.card,#social-bg{width:94vw}}
+
+  /* rain canvas */
+  #rain-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+  .sparkle{position:absolute;width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.9);box-shadow:0 0 12px rgba(255,255,255,0.6);opacity:0;transform:translateY(0) scale(0.6);animation:twinkle 3s infinite ease-in-out}
+  @keyframes twinkle{0%{opacity:0;transform:scale(0.6)}40%{opacity:0.9;transform:scale(1.1)}100%{opacity:0;transform:scale(0.6)}}
+
+  /* Korea clock (top-left) - Menhera darker - Rounded */
+  #kr-clock{
+    position:fixed;left:12px;top:12px;z-index:60;
+    padding:8px 12px;
+    background:rgba(27,8,46,0.9);
+    backdrop-filter:blur(6px);
+    color:#e3d7ff;
+    font-weight:700;
+    border-radius:12px;
+    border:1px solid rgba(210,200,255,0.28);
+    box-shadow:0 6px 20px rgba(0,0,0,0.8);
+    font-family:'Chalet LondonNineteenEighty','Chalet London Nineteen Eighty',Impact,'Arial Narrow Bold',sans-serif;
+    font-size:13px;letter-spacing:0.6px;
+  }
+  #kr-clock .tz{display:block;font-size:11px;color:#b9b3c8;font-weight:600}
+  /* helper to hide/show clock reliably */
+  #kr-clock.hidden{display:none !important;opacity:0}
+
+  
+
+  /* neon lines - floating decorative bars (Menhera glow) */
+  .neon-line{position:fixed;height:2px;border-radius:4px;opacity:0.2;pointer-events:none;z-index:5;mix-blend-mode:screen;filter:blur(4px); box-shadow: 0 0 8px rgba(196,181,253,0.42);}
+  @keyframes neonDrift{0%{transform:translateY(-8px) translateX(0) rotate(0)}50%{transform:translateY(8px) translateX(6px) rotate(0.25deg)}100%{transform:translateY(-8px) translateX(0) rotate(0)}}
+
+  /* extra twinkle (bigger sparkles) - White/lavender */
+  .big-spark{
+    position:fixed;width:10px;height:10px;border-radius:50%;
+    background:rgba(255,255,255,0.7);
+    box-shadow:0 0 15px rgba(196,181,253,0.36);
+    opacity:0;transform:scale(0.7);
+    animation:bigTwinkle 4s infinite ease-in-out
+  }
+  @keyframes bigTwinkle{0%{opacity:0;transform:scale(0.7)}30%{opacity:0.8;transform:scale(1.12)}100%{opacity:0;transform:scale(0.7)}}
+  </style>
+</head>
+<body>
+
+<canvas id="rain-canvas"></canvas>
+
+<!-- Seoul clock (English label) -->
+<div id="kr-clock" class="hidden" aria-live="polite" title="Seoul Time (UTC+9)">--:--:--<span class="tz">Seoul Time (UTC+9)</span></div>
+
+<div id="logo-screen">
+  <!-- simple entry text -->
+  <div>Click to enter</div>
+</div>
+
+ 
+
+<div class="container" id="profile">
+  <div class="card">
+    <div class="avatar"><img src="myskin.png" alt=""></div>
+    <h2>rove</h2>
+    <p class="location">South Korea</p>
+
+    <div class="player">
+      <p><b>krazy8.mp3</b></p>
+      <div class="progress"><div class="bar" id="bar"></div></div>
+      <div class="time" id="timeDisplay">00:00 / 00:00</div>
+      <div class="controls">
+        <button id="playPause">II</button>
+        <label>Volume <input type="range" id="volume" min="0" max="1" step="0.01" value="0.3"></label>
+      </div>
+    </div>
+  </div>
+
+  <div id="social-bg">
+    <div id="socials">
+      <a href="https://www.youtube.com/@%EB%A1%9C%EB%B8%8C%EB%8B%98" target="_blank">
+        <img src="youtube-logo.png" alt="YouTube">
+      </a>
+      <a href="https://discord.gg/2vmQktxd76" target="_blank">
+        <img src="discord-logo.png" alt="Discord">
+      </a>
+    </div>
+  </div>
+
+  <footer>Made by <a href="#">rove</a></footer>
+</div>
+
+<audio id="player" src="krazy8.mp3" autoplay muted loop></audio>
+
+<script>
+const logoScreen=document.getElementById('logo-screen');
+const profile=document.getElementById('profile');
+const audio=document.getElementById('player');
+const bar=document.getElementById('bar');
+const timeDisplay=document.getElementById('timeDisplay');
+const volumeSlider=document.getElementById('volume');
+const playPauseBtn=document.getElementById('playPause');
+
+// 첫 클릭 화면
+logoScreen.addEventListener('click',()=>{
+  logoScreen.style.opacity='0';
+  setTimeout(()=>logoScreen.style.display='none',600);
+  profile.classList.add('visible');
+  audio.muted=false; audio.volume=0.3; audio.play().catch(()=>{});
+});
+
+// fade-in overlay on load
+document.addEventListener('DOMContentLoaded', ()=>{
+  setTimeout(()=>{
+    if(logoScreen) logoScreen.classList.add('show');
+  }, 80); // slight delay to allow CSS to settle
+});
+
+ 
+
+// 볼륨 조절
+volumeSlider.addEventListener('input',()=>{audio.volume=volumeSlider.value;});
+
+// 재생/일시정지 - 아스키 버튼
+playPauseBtn.textContent='II'; // 초기 상태: 일시정지 표시
+playPauseBtn.addEventListener('click',()=>{
+  if(audio.paused){
+    audio.play();
+    playPauseBtn.textContent='II';
+  } else {
+    audio.pause();
+    playPauseBtn.textContent='▷';
+  }
+});
+
+function formatTime(sec){
+  if(isNaN(sec)) return "00:00";
+  const m=Math.floor(sec/60);
+  const s=Math.floor(sec%60);
+  return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+}
+
+function updateBar(){
+  if(!isNaN(audio.duration)){
+    const progress=(audio.currentTime/audio.duration)*100;
+    bar.style.width=progress+'%';
+    timeDisplay.textContent=`${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
+  }
+  requestAnimationFrame(updateBar);
+}
+updateBar();
+</script>
+
+<script>
+// Rain particle engine (lightweight canvas-based)
+(function(){
+  const canvas=document.getElementById('rain-canvas');
+  if(!canvas) return;
+  const ctx=canvas.getContext('2d');
+  let particles=[];
+  let w=0,h=0,dpr=window.devicePixelRatio||1;
+
+  function resize(){
+    dpr=window.devicePixelRatio||1;
+    w=canvas.width = Math.floor(window.innerWidth * dpr);
+    h=canvas.height = Math.floor(window.innerHeight * dpr);
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+
+  function rand(min,max){return Math.random()*(max-min)+min}
+
+  function createParticles(){
+    particles.length=0;
+    // scale count with width but keep it reasonable
+    const base = Math.max(60, Math.round(window.innerWidth / 10));
+    const count = Math.min(220, base);
+    for(let i=0;i<count;i++){
+      particles.push({
+        x: Math.random()*window.innerWidth,
+        y: Math.random()*window.innerHeight,
+        length: rand(22,42),
+        vx: rand(-1.4,-0.5),
+        vy: rand(8,14),
+        o: rand(0.35,0.85)
+      });
+    }
+  }
+
+  function drawParticle(p){
+    ctx.beginPath();
+    ctx.moveTo(p.x,p.y);
+    ctx.lineTo(p.x + p.vx * 1.8,p.y + p.length);
+    ctx.strokeStyle=`rgba(191,211,255,${p.o})`;
+    ctx.lineWidth=1.8;
+    ctx.stroke();
+  }
+
+  function step(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    for(let i=0;i<particles.length;i++){
+      const p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      if(p.x < -10) p.x = window.innerWidth + 10;
+      if(p.x > window.innerWidth + 10) p.x = -10;
+      if(p.y > window.innerHeight + 10){
+        p.y = -p.length;
+        p.x = Math.random()*window.innerWidth;
+      }
+      drawParticle(p);
+    }
+    requestAnimationFrame(step);
+  }
+
+  function init(){
+    resize();
+    createParticles();
+    step();
+  }
+
+  window.addEventListener('resize', ()=>{ resize(); createParticles(); });
+  // conserve on small/mobile: reduce particle count
+  if(/Mobi|Android|Tablet|iPad|iPhone/i.test(navigator.userAgent) && window.innerWidth < 700){
+    // create fewer particles for mobile
+    setTimeout(()=>{ createParticles(); }, 120);
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
+
+<!-- extra animation script: neon lines, twinkles and Korea clock updater -->
+<script>
+// avoid duplicating if re-run
+(function(){
+  const root=document.documentElement;
+  function randomizeSiren(){
+    root.style.setProperty('--red-x',`${8 + Math.random()*84}%`);
+    root.style.setProperty('--blue-x',`${8 + Math.random()*84}%`);
+    root.style.setProperty('--red-y',`${15 + Math.random()*70}%`);
+    root.style.setProperty('--blue-y',`${15 + Math.random()*70}%`);
+  }
+  randomizeSiren();
+  setInterval(randomizeSiren,2200);
+
+  // CLOCK (Seoul) - English format and hide while entry overlay is visible
+  const clockEl = document.getElementById('kr-clock');
+  function updateClock(){
+    try{
+      const now = new Date();
+      // use 24-hour style for clarity and en locale for foreigners
+      const timeStr = now.toLocaleTimeString('en-GB', {hour12:false, timeZone: 'Asia/Seoul'});
+      const dateStr = now.toLocaleDateString('en-GB', {timeZone: 'Asia/Seoul'});
+      if(clockEl) clockEl.innerHTML = `${timeStr}<span class="tz">Seoul Time (UTC+9) • ${dateStr}</span>`;
+    }catch(e){
+      if(clockEl) clockEl.textContent = new Date().toLocaleTimeString();
+    }
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  // Clock visibility: keep hidden until profile is shown. Use class toggles for robustness.
+  const overlay = document.getElementById('logo-screen');
+  const profileNode = document.getElementById('profile');
+  // ensure it's hidden at start (markup may already have .hidden)
+  if(clockEl) clockEl.classList.add('hidden');
+
+  // Observe profile node for the 'visible' class (added when overlay is dismissed)
+  if(profileNode && clockEl){
+    const mo = new MutationObserver((mutations, obs)=>{
+      if(profileNode.classList.contains('visible')){
+        clockEl.classList.remove('hidden');
+        obs.disconnect();
+      }
+    });
+    mo.observe(profileNode, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  // Fallback: show clock shortly after overlay click (matches overlay hide timing)
+  if(overlay && clockEl){
+    overlay.addEventListener('click', ()=>{ setTimeout(()=>clockEl.classList.remove('hidden'), 620); });
+  }
+
+  // Neon lines
+  function createNeonLines(n=8){
+    for(let i=0;i<n;i++){
+      const el=document.createElement('div');
+      el.className='neon-line';
+      const w = Math.round(Math.random()*(420-80)+80);
+      const left = Math.random()*100;
+      const top = Math.random()*80 + 6; // near top area
+      el.style.width = w + 'px';
+      el.style.left = left + '%';
+      el.style.top = top + 'vh';
+      // Pale lavender / soft grey neon
+      el.style.background = `linear-gradient(90deg, rgba(220,214,255,0.42), rgba(170,170,180,0.22))`;
+      const dur = Math.random()*8 + 6;
+      el.style.animation = `neonDrift ${dur}s ease-in-out ${Math.random()*3}s infinite`;
+      el.style.opacity = 0.12 + Math.random()*0.18;
+      document.body.appendChild(el);
+    }
+  }
+  createNeonLines(10);
+
+  // Twinkles (big sparks)
+  function createBigSparks(n=10){
+    for(let i=0;i<n;i++){
+      const s = document.createElement('div');
+      s.className='big-spark';
+      s.style.left = Math.random()*100 + '%';
+      s.style.top = Math.random()*100 + '%';
+      s.style.animationDelay = (Math.random()*4)+'s';
+      document.body.appendChild(s);
+    }
+  }
+
+  // Subtle breathing on header elements
+  const profileEl = document.querySelector('.container');
+  if(profileEl){ profileEl.style.transition = 'transform 0.8s ease'; }
+
+  // small billboard shimmer on footer
+  const footer = document.querySelector('footer');
+  if(footer){ footer.style.transition='filter .35s ease, text-shadow .35s ease'; }
+
+  // optional: mousemove parallax for subtle depth
+  let lastMove = 0;
+  window.addEventListener('mousemove', (e)=>{
+    const now = Date.now(); if(now - lastMove < 16) return; lastMove = now;
+    const cx = window.innerWidth/2; const cy = window.innerHeight/2;
+    const dx = (e.clientX - cx)/cx; const dy = (e.clientY - cy)/cy;
+    const tx = dx * 6; const ty = dy * 6;
+    // apply to snow canvas and container for subtle effect
+    const canvas = document.getElementById('rain-canvas');
+    if(canvas) canvas.style.transform = `translate(${tx}px, ${ty}px)`;
+    if(profileEl) profileEl.style.transform = `translate(${tx/2}px, ${ty/2}px)`;
+  });
+})();
+</script>
+
+
